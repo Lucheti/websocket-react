@@ -1,0 +1,36 @@
+const webSocketsServerPort = 8000;
+const webSocketServer = require('websocket').server;
+const http = require('http');
+// Spinning the http server and the websocket server.
+const server = http.createServer();
+server.listen(webSocketsServerPort);
+const wsServer = new webSocketServer({
+  httpServer: server
+});
+
+// I'm maintaining all active connections in this object
+const clients = {};
+
+// This code generates unique userid for everyuser.
+const getUniqueID = () => {
+  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  return s4() + s4() + '-' + s4();
+};
+
+wsServer.on('request', (request) => {
+  var userID = getUniqueID();
+  console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
+  // You can rewrite this part of the code to accept only the requests from allowed origin
+  const connection = request.accept(null, request.origin);
+  clients[userID] = connection;
+
+  connection.on('message', (message) => {
+    const { type, utf8Data } = message
+    const data = JSON.parse(utf8Data)
+
+    wsServer.broadcast(JSON.stringify({data: data.data, type: "text changed"}))
+  })
+
+  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients))
+  wsServer.broadcast(request)
+});

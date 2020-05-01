@@ -1,5 +1,14 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Notes
+httpServer.js -> web socket server
+
+## To run
+- open a cmd
+- cd src
+- start the server by typing "node httpServer.js"
+- start React UI by runing "npm start"
+
 ## Available Scripts
 
 In the project directory, you can run:
